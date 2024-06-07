@@ -1,0 +1,52 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Comments</title>
+</head>
+<body>
+    <textarea id="input" placeholder="Type your comment here"></textarea>
+    <button id="submit">Send</button>
+    <div id="comments-container"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8000/ws/comments/');
+
+        socket.onopen = function(e) {
+        console.log("[open] Connection established");
+        };
+
+        socket.onmessage = function (e) {
+            console.log(e.data)
+        }
+
+        document.querySelector('#submit').onclick = function(e) {
+            const submitButton = document.getElementById('submit');
+            const messageInput = document.getElementById('input');
+                const message = messageInput.value;
+                socket.send(
+                    JSON.stringify({
+                        chat_id: 1,
+                        action: "add_comment",
+                        message_text: message,
+                        request_id: new Date().getTime(),
+                    })
+                );
+            };
+
+        socket.onclose = function(event) {
+        if (event.wasClean) {
+            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+            console.log('[close] Connection died');
+        }
+        };
+
+        socket.onerror = function(error) {
+        console.log(`[error] ${error.message}`);
+        };
+    </script>
+</body>
+</html>
