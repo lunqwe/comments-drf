@@ -5,48 +5,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Comments</title>
+    <style>
+        .comment {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .comment .user-name {
+            font-weight: bold;
+        }
+        .comment .email {
+            color: gray;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
     <textarea id="input" placeholder="Type your comment here"></textarea>
     <button id="submit">Send</button>
-    <div id="comments-container"></div>
+    <div id="comments"></div>
 
     <script>
-        const socket = new WebSocket('ws://localhost:8000/ws/comments/');
-
-        socket.onopen = function(e) {
-        console.log("[open] Connection established");
-        };
-
-        socket.onmessage = function (e) {
-            console.log(e.data)
-        }
-
-        document.querySelector('#submit').onclick = function(e) {
-            const submitButton = document.getElementById('submit');
-            const messageInput = document.getElementById('input');
-                const message = messageInput.value;
+            const socket = new WebSocket('ws://localhost:8000/ws/comments/');
+    
+            socket.onopen = function(e) {
                 socket.send(
-                    JSON.stringify({
-                        chat_id: 1,
-                        action: "add_comment",
-                        message_text: message,
-                        request_id: new Date().getTime(),
-                    })
-                );
+                        JSON.stringify({
+                            action: "get_comments",
+                            page_num: 1,
+                            request_id: new Date().getTime(),
+                        })
+                    );
+            };
+    
+            socket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                console.log(data);
+    
+                if (data.event_type && data.event_type === 'display_comment') {
+                    if (Array.isArray(data.comment)) {
+                        data.comment.forEach(comment => {
+                            displayComment(comment);
+                        });
+                    } else {
+                        displayComment(data.comment);
+                    }
+                }
+            };
+    
+            document.querySelector('#submit').onclick = function(e) {
+                const submitButton = document.getElementById('submit');
+                const messageInput = document.getElementById('input');
+                    const message = messageInput.value;
+                    socket.send(
+                        JSON.stringify({
+                            chat_id: 1,
+                            action: "add_comment",
+                            message_text: message,
+                            request_id: new Date().getTime(),
+                        })
+                    );
+                };
+    
+            socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+                console.log('[close] Connection died');
+            }
+            };
+    
+            socket.onerror = function(error) {
+            console.log(`[error] ${error.message}`);
             };
 
-        socket.onclose = function(event) {
-        if (event.wasClean) {
-            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        } else {
-            console.log('[close] Connection died');
-        }
-        };
+            function displayComment(comment) {
+                const commentContainer = document.getElementById('comments');
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('comment');
+            
+                const userNameElement = document.createElement('div');
+                userNameElement.classList.add('user-name');
+                userNameElement.textContent = comment.user_name;
+            
+                const emailElement = document.createElement('div');
+                emailElement.classList.add('email');
+                emailElement.textContent = comment.email;
+            
+                const textElement = document.createElement('div');
+                textElement.classList.add('text');
+                textElement.textContent = comment.text;
+            
+                commentElement.appendChild(userNameElement);
+                commentElement.appendChild(emailElement);
+                commentElement.appendChild(textElement);
 
-        socket.onerror = function(error) {
-        console.log(`[error] ${error.message}`);
-        };
+                commentContainer.insertBefore(commentElement, commentContainer.firstChild);
+            }
     </script>
 </body>
 </html>
