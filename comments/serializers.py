@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
+from .models import Comment
 
-class CommentSerializer(serializers.Serializer):
-    test = serializers.CharField()
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
     
-class UserSerializer(serializers.Serializer):
-    test = serializers.CharField()
