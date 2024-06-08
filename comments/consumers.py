@@ -6,12 +6,12 @@ from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework import mixins
 from djangochannelsrestframework.observer.generics import (ObserverModelInstanceMixin, action)
 from djangochannelsrestframework.observer import model_observer
-from django.core.paginator import Paginator
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Comment
 from .serializers import CommentSerializer
+from .tasks import load_comments
 
 User = get_user_model()
 
@@ -26,26 +26,14 @@ class WebsocketConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
         )
         await self.accept()
         
-    @sync_to_async()
-    def load_comments(self, page_num, **kwargs):
-        queryset = Comment.objects.all().order_by('created_at')
-        paginator = Paginator(queryset, 25)
-        result = paginator.get_page(page_num)
-        comments = []
-        for comment in result:
-            comments.append({
-                'username': comment.created_by,
-                'email': comment.email,
-                'text': comment.text
-            })
-        return comments
     
     @action()
     async def get_comments(self, page_num, **kwargs):
-        comments = await self.load_comments(page_num=page_num)
+        comments = load_comments.apply_async(args=[page_num])
+
         return await self.send(text_data=json.dumps({
             'event_type': 'display_comment',
-            'comment': comments
+            'comment': comments.get()
         }))
         
     
