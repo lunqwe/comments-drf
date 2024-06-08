@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Comment
-from .serializers import CommentSerializer, UserSerializer
+from .serializers import CommentSerializer
 
 User = get_user_model()
 
@@ -28,13 +28,13 @@ class WebsocketConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
         
     @sync_to_async()
     def load_comments(self, page_num, **kwargs):
-        queryset = Comment.objects.all()
-        paginator = Paginator(queryset, 50)
+        queryset = Comment.objects.all().order_by('created_at')
+        paginator = Paginator(queryset, 25)
         result = paginator.get_page(page_num)
         comments = []
         for comment in result:
             comments.append({
-                'user_name': comment.user_name,
+                'username': comment.created_by,
                 'email': comment.email,
                 'text': comment.text
             })
