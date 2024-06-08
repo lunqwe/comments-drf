@@ -21,13 +21,14 @@ def create_comment(comment_data):
         )
     
 @app.task()
-def load_comments(page_num):
+def get_comments(page_num):
     queryset = Comment.objects.all().order_by('created_at')
     paginator = Paginator(queryset, 25)
     result = paginator.get_page(page_num)
     comments = []
     for comment in result:
         comments.append({
+            'id': comment.id,
             'username': comment.created_by,
             'email': comment.email,
             'text': comment.text

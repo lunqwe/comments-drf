@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Comment
 from .serializers import CommentSerializer
-from .tasks import load_comments
+from .tasks import get_comments
 
 User = get_user_model()
 
@@ -29,7 +29,7 @@ class WebsocketConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
     
     @action()
     async def get_comments(self, page_num, **kwargs):
-        comments = load_comments.apply_async(args=[page_num])
+        comments = get_comments.apply_async(args=[page_num])
 
         return await self.send(text_data=json.dumps({
             'event_type': 'display_comment',
