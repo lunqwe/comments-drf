@@ -46,7 +46,7 @@
                 if (data.event_type && data.event_type === 'display_comment') {
                     if (Array.isArray(data.comment)) {
                         data.comment.forEach(comment => {
-                            displayComment(comment);
+                            displayComment(comment, addAtTop = false);
                         });
                     } else {
                         displayComment(data.comment);
@@ -80,28 +80,32 @@
             console.log(`[error] ${error.message}`);
             };
 
-            function displayComment(comment) {
+            function displayComment(comment, addAtTop = true) {
                 const commentContainer = document.getElementById('comments');
                 const commentElement = document.createElement('div');
                 commentElement.classList.add('comment');
-            
+                
                 const userNameElement = document.createElement('div');
                 userNameElement.classList.add('user-name');
                 userNameElement.textContent = comment.user_name;
-            
+                
                 const emailElement = document.createElement('div');
                 emailElement.classList.add('email');
                 emailElement.textContent = comment.email;
-            
+                
                 const textElement = document.createElement('div');
                 textElement.classList.add('text');
                 textElement.textContent = comment.text;
-            
+                
                 commentElement.appendChild(userNameElement);
                 commentElement.appendChild(emailElement);
                 commentElement.appendChild(textElement);
-
-                commentContainer.insertBefore(commentElement, commentContainer.firstChild);
+            
+                if (addAtTop) {
+                    commentContainer.insertBefore(commentElement, commentContainer.firstChild);
+                } else {
+                    commentContainer.appendChild(commentElement);
+                }
             }
     </script>
 </body>
