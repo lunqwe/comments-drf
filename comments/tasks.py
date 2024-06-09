@@ -6,15 +6,24 @@ from django.http import Http404
 from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
+from django.core.cache import cache
 
-from comments.models import Comment
-from comments.serializers import CommentSerializer
+from .models import Comment
+from .serializers import CommentSerializer
+
+def clear_comments_cache():
+    cache_keys_to_clear = [
+        f'comments_page_{page_num}'
+        for page_num in range(1, 100)  # Указать максимальное количество страниц
+    ]
+    cache.delete_many(cache_keys_to_clear)
 
 
 @app.task()
 def create_comment(comment_data):
     comment = Comment.objects.create(**comment_data)
     comment_data = CommentSerializer(comment).data
+    clear_comments_cache()
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
             'comments_group',
@@ -26,7 +35,12 @@ def create_comment(comment_data):
     
 @app.task()
 def get_comments(page_num):
-    queryset = Comment.objects.all().order_by('created_at')
+    cache_key = f'comments_page_{page_num}'
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return cached_data
+    
+    queryset = Comment.objects.all().order_by('created_at')[::-1]
     paginator = Paginator(queryset, 25)
     result = paginator.get_page(page_num)
     comments = []
@@ -37,6 +51,8 @@ def get_comments(page_num):
             'email': comment.email,
             'text': comment.text
         })
+        
+    cache.set(cache_key, comments, timeout=3600)
     return comments
 
 

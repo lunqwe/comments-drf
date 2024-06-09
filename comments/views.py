@@ -1,20 +1,17 @@
 import time
 from django.shortcuts import render
 from django.http import Http404
+from django.core.cache import cache
 from rest_framework import generics, serializers, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from celery.result import AsyncResult
-
 
 
 from .models import Comment
 from .serializers import CommentSerializer
-from .tasks import create_comment, get_comments, update_comment, partial_update_comment
-from accounts.views import error_detail
+from .tasks import create_comment, get_comments, update_comment, partial_update_comment, clear_comments_cache
+
 
 def index(request):
     return render(request, 'index.html')
@@ -59,6 +56,7 @@ class UpdateCommentView(generics.UpdateAPIView):
                 response_data = result.get()
                 if 'error' in response_data:
                     return Response(response_data['error'], status=response_data['status'])
+                clear_comments_cache()
                 return Response(response_data['comment'], status=status.HTTP_200_OK)
             else:
                 return Response('You are not owner of this comment', status=status.HTTP_403_FORBIDDEN)
@@ -73,6 +71,7 @@ class UpdateCommentView(generics.UpdateAPIView):
                 response_data = result.get()
                 if 'error' in response_data:
                     return Response(response_data['error'], status=response_data['status'])
+                clear_comments_cache()
                 return Response(response_data['comment'], status=status.HTTP_200_OK)
             else:
                 return Response('You are not owner of this comment', status=status.HTTP_403_FORBIDDEN)
