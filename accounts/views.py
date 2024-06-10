@@ -73,7 +73,8 @@ class SignUpView(generics.CreateAPIView):
             
             return Response({
                 'detail': "You have been registered successfully!",
-                'tokens': tokens
+                'tokens': tokens,
+                'user_id': user.id,
             })
             
         # if serializer is not valid
