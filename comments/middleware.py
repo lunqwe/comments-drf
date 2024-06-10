@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+# jwt middleware
 class JWTAuthMiddleware:
     def __init__(self, inner):
         self.inner = inner

@@ -14,9 +14,10 @@ from .tasks import create_comment, get_comments, update_comment, partial_update_
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html') # index.html is a functionality preview of websocket
 
 
+# create comment view
 class AddCommentView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -29,34 +30,34 @@ class AddCommentView(generics.CreateAPIView):
             comment_data['created_by'] = user.username
             comment_data['email'] = user.email
             comment_data['owner'] = user
-        create_comment.apply_async(args=[comment_data])
+        create_comment.apply_async(args=[comment_data]) # starting celery function that creates and notifies websocket 
         
-
+# get comments view
 class CommentListView(generics.ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     
     def list(self, request, *args, **kwargs):
         page_number = request.query_params.get('page', 1)
-        return Response(get_comments.apply_async(args=[page_number]).get())
+        return Response(get_comments.apply_async(args=[page_number]).get()) # starting celery task
         
 
+# update comment view
 class UpdateCommentView(generics.UpdateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     authentication_classes = (JWTAuthentication, )
-    permission_classes = [IsAuthenticated, ]
     lookup_field = 'id'
     
     def partial_update(self, request, *args, **kwargs):
         try:
             comment_obj = self.get_object()
-            if comment_obj.owner == request.user:
+            if comment_obj.owner == request.user: # checking using jwtauthentication
                 result = partial_update_comment.apply_async(args=[comment_obj.id, request.user.id, request.data])
                 response_data = result.get()
                 if 'error' in response_data:
                     return Response(response_data['error'], status=response_data['status'])
-                clear_comments_cache()
+                clear_comments_cache() # if updated - clearing cache
                 return Response(response_data['comment'], status=status.HTTP_200_OK)
             else:
                 return Response('You are not owner of this comment', status=status.HTTP_403_FORBIDDEN)
@@ -71,7 +72,7 @@ class UpdateCommentView(generics.UpdateAPIView):
                 response_data = result.get()
                 if 'error' in response_data:
                     return Response(response_data['error'], status=response_data['status'])
-                clear_comments_cache()
+                clear_comments_cache() # if updated - clearing cache 
                 return Response(response_data['comment'], status=status.HTTP_200_OK)
             else:
                 return Response('You are not owner of this comment', status=status.HTTP_403_FORBIDDEN)

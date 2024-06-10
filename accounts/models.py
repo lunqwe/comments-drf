@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
 class UserManager(BaseUserManager):
+    """
+    Custom User manager
+    """
     
     def create_user(self, email: str, username: str, password: str, **extra_fields):
         if not email:
@@ -24,5 +27,7 @@ class UserManager(BaseUserManager):
     
 
 class User(AbstractUser):
+    """ Custom User model """
+    
     username = models.CharField("Username", max_length=255, unique=True)
     email = models.EmailField('Email', unique=True)

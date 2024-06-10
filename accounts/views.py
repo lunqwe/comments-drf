@@ -24,7 +24,7 @@ def error_detail(e):
     
     return error_messages
 
-# function to get  user`s new token
+# function to get user`s new token
 def get_user_jwt(user: User):
     refresh = RefreshToken.for_user(user)
 
@@ -43,7 +43,7 @@ class LoginView(generics.GenericAPIView):
         try:
             if serializer.is_valid(raise_exception=True):
                 user = serializer.validated_data.get('user')
-                tokens = get_user_jwt(user)
+                tokens = get_user_jwt(user) # creating jwt tokens (refresh/access)
                 return Response({
                     "detail": "You have been logged in successfully!",
                     'tokens': tokens
@@ -66,16 +66,17 @@ class SignUpView(generics.CreateAPIView):
         try:
             user_data = self.create(request, *args, **kwargs).data
             password = user_data.pop('password')
-            user = User.objects.create(**user_data)
-            user.set_password(password)
+            user = User.objects.create(**user_data) # registering user
+            user.set_password(password) # setting password
             user.save()
-            tokens = get_user_jwt(user)
+            tokens = get_user_jwt(user) # creating jwt tokens (refresh/access)
             
             return Response({
                 'detail': "You have been registered successfully!",
                 'tokens': tokens
             })
             
+        # if serializer is not valid
         except serializers.ValidationError as e:
             data = {
                 'status': 'error',
@@ -84,7 +85,7 @@ class SignUpView(generics.CreateAPIView):
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         
         
-# user view
+# user view for get/update object
 class UserViewSet(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

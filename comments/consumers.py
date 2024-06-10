@@ -16,9 +16,11 @@ from .tasks import get_comments
 User = get_user_model()
 
 class WebsocketConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
+    
     serializer_class = CommentSerializer
     authentication_classes = (JWTAuthentication, )
     
+    #default action to connect websocket
     async def connect(self):
         await self.channel_layer.group_add(
             'comments_group',
@@ -27,23 +29,25 @@ class WebsocketConsumer(ObserverModelInstanceMixin, GenericAsyncAPIConsumer):
         await self.accept()
         
     
+    # action for load comments
     @action()
-    async def get_comments(self, page_num, **kwargs):
-        comments = get_comments.apply_async(args=[page_num])
+    async def get_comments(self, page_num: int, **kwargs):
+        comments = get_comments.apply_async(args=[page_num]) # celery task to load data from db
 
         return await self.send(text_data=json.dumps({
             'event_type': 'display_comment',
             'comment': comments.get()
         }))
         
-    
-    async def add_comment(self, event):
+    # create comment function (not @action because of api endpoint)
+    async def add_comment(self, event: dict):
         comment = event['comment']
         await self.send(text_data=json.dumps({
             'event_type': 'display_comment',
             'comment': comment
         }))
-            
+    
+    # action for close websocket connection
     @action()
     async def logout(self, **kwargs):
         await self.channel_layer.group_discard(
