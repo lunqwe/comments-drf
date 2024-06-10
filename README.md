@@ -1,49 +1,39 @@
-# Тестовое задание для dZENcode
+# Test Task for dZENcode
 
-Это приложение представляет собой функционал комментариев с использованием веб-сокетов, интеграцией Celery, кешированием, аутентификацией с помощью JWT, а также развернуто на AWS.
+This application is a comment functionality with WebSocket integration, Celery integration, caching, JWT authentication, and deployed on AWS.
 
-## Инструкции
+## Instructions
 
-1. **Запуск приложения:**
-   - Для получения файлов проекта используйте следующую команду:
+1. **Running the Application:**
+   - To get the project files, use the following command:
      ```
      git clone https://github.com/lunqwe/dZENcode-task
      ```
-
-```
-git clone https://github.com/lunqwe/dZENcode-task
-```
-   - Для запуска проекта используйте следующую команду (необходим Docker):
+   - To run the project, use the following command (Docker required):
      ```
      docker-compose up --build
      ```
 
-3. **Документация API:**
-   - Документацию API можно ознакомиться через [localhost:8000/swagger/](http://localhost:8000/swagger/) (для локального сервера) или [http://13.60.84.5:8000/swagger/](http://13.60.84.5:8000/swagger/) (проект развернут на сервере).
+3. **API Documentation:**
+   - API documentation can be accessed via [localhost:8000/swagger/](http://localhost:8000/swagger/) (for local server) or [http://13.60.84.5:8000/swagger/](http://13.60.84.5:8000/swagger/) (project deployed on server).
 
-## Описание проекта
+## Project Description
 
-На главной странице представлен пример работы веб-сокета и форма для создания комментариев.
+The main page demonstrates WebSocket functionality and provides a form for creating comments.
 
-### Приложение accounts
+### Application: accounts
 
-Это приложение отвечает за авторизацию пользователей с помощью JWT. Здесь реализованы следующие возможности:
-- Логин и регистрация пользователей
-- Получение пользователя по ID
-- Обновление информации о пользователе (PUT/PATCH)
+This application handles user authentication using JWT. It includes:
+- User login and registration
+- Retrieving user by ID
+- Updating user information (PUT/PATCH)
 
-### Приложение comments
+### Application: comments
 
-Это приложение реализует функционал комментариев, включая:
-- Использование веб-сокета для непрерывного подключения к серверу
-- Эндпоинты для создания новых комментариев и обновления существующих
+This application implements comment functionality, including:
+- WebSocket for continuous server connection
+- Endpoints for creating new comments and updating existing ones
 
-Оба приложения также используют задачи Celery для создания очереди рабочих процессов.
+Both applications also use Celery tasks for creating a queue of worker processes.
 
-## Получение проекта
 
-Для получения файлов проекта используйте следующую команду:
-
-```
-git clone https://github.com/lunqwe/dZENcode-task
-```
