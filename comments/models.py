@@ -7,4 +7,4 @@ class Comment(models.Model):
     email = models.EmailField('Email', default='')
     text = models.TextField('Text')
     created_at = models.DateTimeField(auto_now_add=True)
-    to_comment = models.ManyToManyField('self', on_delete=models.PROTECT, blank=True, null=True, related_name='replies')
+    to_comment = models.ManyToManyField('self', blank=True, null=True, related_name='replies')
