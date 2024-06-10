@@ -9,5 +9,5 @@ COPY req.txt /code/req.txt
 RUN pip install -r /code/req.txt
 
 COPY . /code/
-
+RUN python manage.py makemigrations
 CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--ws", "websockets"]
