@@ -22,11 +22,45 @@
     </style>
 </head>
 <body>
-    <textarea id="input" placeholder="Type your comment here"></textarea>
+    <input type="text" id="username" placeholder="Username">
+    <input type="email" id="email" placeholder="Email">
+    <textarea id="comment" placeholder="Type your comment here"></textarea>
     <button id="submit">Send</button>
     <div id="comments"></div>
 
     <script>
+
+        document.getElementById("submit").addEventListener("click", function() {
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var comment = document.getElementById("comment").value;
+        
+            var data = {
+                "created_by_username": username,
+                "email": email,
+                "text": comment
+            };
+        
+            fetch('http://localhost:8000/api/comments/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
             const socket = new WebSocket('ws://localhost:8000/ws/comments/');
     
             socket.onopen = function(e) {
