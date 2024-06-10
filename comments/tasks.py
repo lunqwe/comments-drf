@@ -23,17 +23,19 @@ def clear_comments_cache():
 # celery task for creating comment & notify websocket users
 @app.task()
 def create_comment(comment_data):
+    to_comment = Comment.objects.get(id=comment_data['to_comment_id'])
+    comment_data['to_comment'] = to_comment
     comment = Comment.objects.create(**comment_data)
     comment_data = CommentSerializer(comment).data
     clear_comments_cache() # clearing invalid cache
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-            'comments_group',
-            {
-                'type': 'add_comment',
-                'comment': comment_data
-            }
-        )
+                'comments_group',
+                {
+                    'type': 'add_comment',
+                    'comment': comment_data
+                }
+            )
 
 # celery task to load comments
 @app.task()
