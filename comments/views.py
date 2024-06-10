@@ -29,7 +29,7 @@ class AddCommentView(generics.CreateAPIView):
         if user.is_authenticated:
             comment_data['created_by'] = user.username
             comment_data['email'] = user.email
-            comment_data['owner'] = user
+            comment_data['owner'] = user 
         create_comment.apply_async(args=[comment_data]) # starting celery function that creates and notifies websocket 
         
 # get comments view
