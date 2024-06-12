@@ -33,8 +33,8 @@ class AddCommentView(generics.CreateAPIView):
             comment_data['email'] = user.email
             comment_data['owner'] = user 
             
-        if 'file' in self.request.FILES:
-            file = self.request.FILES['file']
+        if 'file' in comment_data:
+            file = comment_data['file']
             file_name = default_storage.save(file.name, ContentFile(file.read()))
             comment_data['file'] = file_name
             
