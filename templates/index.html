@@ -41,7 +41,7 @@
                 "text": comment
             };
         
-            fetch('http://localhost:8000/api/comments/create/', {
+            fetch('http://13.60.84.5:8000/api/comments/create/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,7 +61,7 @@
                 console.error('Error:', error);
             });
         });
-            const socket = new WebSocket('ws://localhost:8000/ws/comments/');
+            const socket = new WebSocket('ws://13.60.84.5:8000/ws/comments/');
     
             socket.onopen = function(e) {
                 socket.send(
