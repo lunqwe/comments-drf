@@ -36,6 +36,8 @@ class AddCommentView(generics.CreateAPIView):
                 comment = Comment.objects.get(id=comment_id)
                 comment.file = file
                 comment.save()
+                
+        return comment
         
         
 # get comments view
