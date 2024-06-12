@@ -37,7 +37,7 @@ class AddCommentView(generics.CreateAPIView):
                 comment.file = file
                 comment.save()
                 
-        print(serializer.data)
+        serializer.data.file == comment.file.url
         
         
 # get comments view
