@@ -2,6 +2,7 @@ import time
 from django.shortcuts import render
 from django.http import Http404
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from rest_framework import generics, serializers, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
@@ -30,6 +31,12 @@ class AddCommentView(generics.CreateAPIView):
             comment_data['created_by'] = user.username
             comment_data['email'] = user.email
             comment_data['owner'] = user 
+            
+        if 'file' in self.request.FILES:
+            file = self.request.FILES['file']
+            file_name = default_storage.save(file.name, ContentFile(file.read()))
+            comment_data['file'] = file_name
+            
         create_comment.apply_async(args=[comment_data])# starting celery function that creates and notifies websocket 
         
 # get comments view
