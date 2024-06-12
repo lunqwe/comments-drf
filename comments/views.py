@@ -47,7 +47,7 @@ class AddCommentView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         response_data = self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(context=response_data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(data=response_data, status=status.HTTP_201_CREATED, headers=headers)
         
         
 # get comments view
