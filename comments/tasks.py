@@ -22,7 +22,7 @@ def clear_comments_cache():
 
 # celery task for creating comment & notify websocket users
 @app.task()
-def create_comment(comment_data):
+def create_comment(comment_data: dict):
     if comment_data.get('to_comment_id'):
         to_comment = Comment.objects.get(id=comment_data.get('to_comment_id'))
         comment_data['to_comment'] = to_comment
@@ -37,10 +37,12 @@ def create_comment(comment_data):
                     'comment': comment_data
                 }
             )
+    
+    return comment
 
 # celery task to load comments
 @app.task()
-def get_comments(page_num):
+def get_comments(page_num: int) -> list:
     cache_key = f'comments_page_{page_num}'
     cached_data = cache.get(cache_key)
     if cached_data is not None:
@@ -64,7 +66,7 @@ def get_comments(page_num):
 
 # update (put) function
 @app.task()
-def update_comment(comment_id, user_id, data):
+def update_comment(comment_id: int, user_id: int, data:dict) -> dict:
     try:
         with transaction.atomic(): # using transacions, because we already got comment_obj inside view function
             comment_obj = Comment.objects.select_for_update().get(id=comment_id)
@@ -82,7 +84,7 @@ def update_comment(comment_id, user_id, data):
 
 # partial update (patch) function
 @app.task()
-def partial_update_comment(comment_id, user_id, data):
+def partial_update_comment(comment_id: int, user_id: int, data:dict) -> dict:
     try:
         with transaction.atomic(): # using transacions, because we already got comment_obj inside view function
             comment_obj = Comment.objects.select_for_update().get(id=comment_id)
