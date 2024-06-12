@@ -20,7 +20,6 @@ class AddCommentView(generics.CreateAPIView):
     serializer_class = CommentSerializer
     authentication_classes = (JWTAuthentication, )
     
-    @transaction.atomic
     def perform_create(self, serializer):
         comment_data = serializer.validated_data
         user = self.request.user
@@ -29,12 +28,13 @@ class AddCommentView(generics.CreateAPIView):
             comment_data['email'] = user.email
             comment_data['owner'] = user 
             
+        comment_id = create_comment.apply_async(args=[comment_data]).get()# starting celery function that creates and notifies websocket 
         if 'file' in comment_data:
             file = comment_data.pop('file')
-            
-        comment = create_comment.apply_async(args=[comment_data]).get()# starting celery function that creates and notifies websocket 
-        comment.file = file
-        comment.save()
+            with transaction.atomic():
+                comment = Comment.objects.get(id=comment_id)
+                comment.file = file
+                comment.save()
         
         
 # get comments view
