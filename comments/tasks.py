@@ -23,8 +23,8 @@ def clear_comments_cache():
 # celery task for creating comment & notify websocket users
 @app.task()
 def create_comment(comment_data):
-    if comment_data['to_comment_id']:
-        to_comment = Comment.objects.get(id=comment_data['to_comment_id'])
+    if comment_data.get('to_comment_id'):
+        to_comment = Comment.objects.get(id=comment_data.get('to_comment_id'))
         comment_data['to_comment'] = to_comment
     comment = Comment.objects.create(**comment_data)
     comment_data = CommentSerializer(comment).data
