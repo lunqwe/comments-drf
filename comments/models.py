@@ -7,4 +7,6 @@ class Comment(models.Model):
     email = models.EmailField('Email', default='')
     text = models.TextField('Text')
     created_at = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(upload_to='files/', blank=True, null=True)
+    home_page = models.URLField(blank=True, null=True)
     to_comment = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
