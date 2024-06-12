@@ -39,7 +39,7 @@ def create_comment(comment_data: dict, *args):
                 }
             )
     
-    return comment
+    return comment.id
 
 # celery task to load comments
 @app.task()
