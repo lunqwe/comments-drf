@@ -31,7 +31,7 @@ class AddCommentView(generics.CreateAPIView):
             file = comment_data.pop('file')
             
         comment_id = create_comment.apply_async(args=[comment_data]).get()# starting celery function that creates and notifies websocket 
-        if file.exists():
+        if file:
             with transaction.atomic():
                 comment = Comment.objects.get(id=comment_id)
                 comment.file = file
