@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.core.cache import cache
 from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from rest_framework import generics, serializers, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
