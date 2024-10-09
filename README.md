@@ -1,6 +1,6 @@
-# Test Task for dZENcode
+# Comments functionality
 
-This application is a comment functionality with WebSocket integration, Celery integration, caching, JWT authentication, and deployed on AWS.
+In this project I implemented live-time comments functionality that could be reused for different needs (e.g. social-network project, blog, etc.) 
 
 ## Instructions
 
@@ -19,7 +19,7 @@ This application is a comment functionality with WebSocket integration, Celery i
 
 ## Project Description
 
-The main page demonstrates WebSocket functionality and provides a form for creating comments.
+The main page demonstrates WebSocket functionality and provides a form for creating comments. When you create a comment, Websocket would display them.
 
 ### Application: accounts
 
